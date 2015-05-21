@@ -24,10 +24,12 @@ var Engine = (function(global) {
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
+        image = new Image();
 
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
+    image.src = "images/Heart.png";
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -91,15 +93,17 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        try {
-            allEnemies.forEach(function(enemy) {
-                enemy.update(dt);
-            });
-            player.update();
+        if (hearts.getValue() != 0) {
+            try {
+                allEnemies.forEach(function(enemy) {
+                    enemy.update(dt);
+                });
+                player.update();
 
-        } catch (e) {
-            console.log("cannot update entities anymore: " + e.message);
-            reset();
+            } catch (e) {
+                //console.log("cannot update entities anymore: " + e.message);
+                reset();
+            }
         }
     }
 
@@ -140,6 +144,67 @@ var Engine = (function(global) {
                  * we're using them over and over.
                  */
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+
+                var j = 0;
+                 for (i = 0; i < hearts.getValue(); i++) {
+                    j = j + 28;
+                    ctx.drawImage(image, j, 50, 30,  40);
+                }
+
+                if (score != null) {
+                    ctx.font = "100 18px sans-serif";
+                    ctx.lineWidth = -3;
+                    ctx.textAlign = "left";
+                    ctx.fillStyle = "red";
+                    ctx.fillText("Emeralds : " + gem.getEmerald() +  "     Garnets : " +
+                        gem.getGarnet() + "      Sapphires : " + gem.getSapphire() +
+                        "      Score : " + score.getValue(), 10, 120);
+
+                    if (hearts.getValue() == 0 && gem.getEmerald() == 1 && gem.getGarnet() == 0) {
+                        ctx.fillText("Click on the canvas to play Level 2", 200, 200);
+                        document.addEventListener('click', function() {
+                            level1 = false;
+                            level2 = true;
+                        });
+                        if (level2) {
+                            ctx.textAlign = "right";
+                            ctx.fillStyle = "white";
+                            ctx.fillText(" Game Level  2", 500, 70);
+                        }
+                    }
+                    if (hearts.getValue() != 0 && gem.getEmerald() == 0) {
+                            ctx.textAlign = "right";
+                            ctx.fillStyle = "white";
+                            ctx.fillText(" Game Level  1", 500, 70);
+                    }
+                    if (hearts.getValue() == 0 && gem.getEmerald() == 1 && gem.getGarnet() == 2) {
+                        ctx.fillText("Click on the canvas to play Level 3", 250, 200);
+                        document.addEventListener('click', function() {
+                            level2 = false;
+                            level3 = true;
+                        });
+                        if (level3) {
+                            ctx.textAlign = "right";
+                            ctx.fillStyle = "white";
+                            ctx.fillText(" Game Level  3", 500, 70);
+                        }
+                    }
+
+
+                }
+                if (hearts.getValue() == 0) {
+                    ctx.font = "600 48px sans-serif";
+                    ctx.lineWidth = -3;
+                    ctx.textAlign = "center";
+                    ctx.fillStyle = "red";
+                    ctx.fillText("GAME OVER!", 250, 180);
+                    ctx.font = "100 12px sans-serif";
+                    ctx.fillText("Click on the canvas to play again", 250, 200);
+
+                    document.addEventListener('click', function() {
+                        hearts.reset();
+                    });
+                }
             }
         }
 
@@ -160,6 +225,26 @@ var Engine = (function(global) {
         });
 
         player.render();
+        if (gem.getEmerald() == 0) {
+            level1 = true;
+            emerald.render();
+        }
+        if (gem.getEmerald() == 1 && gem.getGarnet() == 0) {
+            level1 = false;
+            level2 = true;
+            console.log("got into the loop");
+            allGarnets.forEach(function(garnet) {
+                garnet.render();
+            });
+        }
+        if (gem.getEmerald() == 1 && gem.getGarnet() == 2 && gem.getSapphire() == 0) {
+            level1 = false;
+            level2 = false;
+            level3 = true;
+            allSapphires.forEach(function(sapphire) {
+                sapphire.render();
+            });
+        }
     }
 
     /* This function does nothing but it could have been a good place to
@@ -182,7 +267,11 @@ var Engine = (function(global) {
         'images/grass-block.png',
         'images/enemy-bug.png',
         'images/char-boy.png',
-        'images/char-princess-girl.png'
+        'images/char-princess-girl.png',
+        'images/Heart.png',
+        'images/Gem Green.png',
+        'images/Gem Orange.png',
+        'images/Gem Blue.png'
     ]);
     Resources.onReady(init);
 
