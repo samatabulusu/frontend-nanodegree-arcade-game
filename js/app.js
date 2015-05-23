@@ -1,8 +1,20 @@
 
-// Level class to track the game level for the player
-// three levels are allowed in this version
-// - level1, level2, level3
-// Parameter level: level the game is played at
+/* app.js
+ * This file defines game levels, gems to be won, game score
+ * enemies and player objects. It also initiates these objects
+ * and provides the business rules as the layer under Engine.js.
+ *
+ * Frontend Web Developer Nanodegee, Udacity
+ * Project 3
+ * @date May 23rd, 2015
+ * @author Samata Bulusu
+*/
+
+/* Level class to track the game level for the player
+ * three levels are allowed in this version
+ * - level1, level2, level3
+ * Parameter level: level the game is played at
+*/
 var Level = function(level) {
     this.level = level;
 }
@@ -118,9 +130,9 @@ GemScore.prototype.reset = function() {
 }
 
 
-// parent class for all gem classes - Emerald, Garnet and Sapphire
-// implemented as a good showcase for inheritance and encapsulation
-// keeps track of size of the gem
+/* parent class for all gem classes - Emerald, Garnet and Sapphire
+ * implemented as a good showcase for inheritance and encapsulation
+*/ keeps track of size of the gem
 var Gem = function(x, y) {
     this.x = x;
     this.y = y;
@@ -130,9 +142,9 @@ Gem.prototype.WIDTH = 80;
 // height of the gem
 Gem.prototype.HEIGHT = 80
 
-// Emerald class
-// Parameter x: the x position on the canvas
-// Parameter y; the y position on the canvas
+/* Emerald class
+ * Parameter x: the x position on the canvas
+*/ Parameter y; the y position on the canvas
 var Emerald = function(x, y) {
     this.emerald = 'images/Gem Green.png';
     this.original = [x, y];
@@ -157,9 +169,9 @@ Emerald.prototype.disappear = function() {
     this.y = -1000;
 }
 
-// Garnet class
-// Parameter x: the x position on the canvas
-// Parameter y: the y position on the canvas
+/* Garnet class
+ * Parameter x: the x position on the canvas
+*/ Parameter y: the y position on the canvas
 var Garnet = function(x, y) {
     this.garnet = 'images/Gem Orange.png';
     this.original = [x, y];
@@ -185,9 +197,9 @@ Garnet.prototype.disappear = function() {
     this.y = -1000;
 }
 
-// Sapphire class
-// Parameter x: the x position on the canvas
-// Parameter y: the y position on the canvas
+/* Sapphire class
+ * Parameter x: the x position on the canvas
+*/ Parameter y: the y position on the canvas
 var Sapphire = function(x, y) {
     this.sapphire = 'images/Gem Blue.png';
     this.original = [x, y];
@@ -213,10 +225,10 @@ Sapphire.prototype.disappear = function() {
     this.y = -1000;
 }
 
-// Enemies our player must avoid
-// Parameter x: the x position on the canvas
-// Parameter y: the y position on th canvas
-// Parameter speed: the rate at which the enemy moves
+/* Enemies our player must avoid
+ * Parameter x: the x position on the canvas
+ * Parameter y: the y position on th canvas
+*/ Parameter speed: the rate at which the enemy moves
 var Enemy = function(x, y, speed) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
@@ -253,9 +265,9 @@ Enemy.prototype.reset = function() {
     this.y = this.original[1];
 }
 
-// Player class
-// Parameter x: the x position of the player
-// Parameter y: the y position of the player
+/* Player class
+ * Parameter x: the x position of the player
+*/ Parameter y: the y position of the player
 var Player = function(x, y) {
     // associate the image with the player
     this.sprite = "images/char-princess-girl.png";
@@ -377,16 +389,15 @@ Player.prototype.hasGem = function() {
     return false;
 }
 
-// render method for Player class - Samata
+// render method for Player class
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
 Player.prototype.STEP_WIDTH = 20;
 
-// handleInput method for Player class - Samata
+// handleInput method for Player class -
 Player.prototype.handleInput = function(keyCode) {
-    // move by 10 units
     // set left, right, up and down boundaries
     // so the player cannot move outside the box
     if (keyCode == 'left') {
@@ -437,18 +448,22 @@ Player.prototype.checkGemCollision = function(gem) {
     return val;
 }
 
+// get the x coordinate for collision to the left of sprite
 function getLeft(xVal, width) {
     return xVal - width;
 }
 
+// get the y coordinate for collision to the top of the sprite
 function getTop(yVal, width) {
     return yVal - width;
 }
 
+// get the x coordinate for collision to the right of the sprite
 function getRight(xVal, width) {
     return xVal + width;
 }
 
+// get the y coordinate for collision to the bottom of the sprite
 function getBottom(yVal, width) {
     return yVal + width;
 }
@@ -459,6 +474,7 @@ function CollisionException(message) {
     this.name = "CollisionException";
 }
 
+// global Error object is the parent for CollisionException class
 CollisionException.prototype = Object.create(Error.prototype);
 CollisionException.prototype.constructor = CollisionException;
 
@@ -469,13 +485,10 @@ function GemException(message) {
     this.message = message;
 }
 
+// global Error object is the parent for the GemException class
 GemException.prototype = Object.create(Error.prototype);
 GemException.prototype.constructor = GemException;
 
-
-function resetEnemies() {
-    console.log("in reset enemies");
-}
 
 // an array to hold all enemies
 var allEnemies = [];
@@ -500,24 +513,34 @@ var gemScore = new GemScore();
 // instantiate heart counter
 var hearts = new Heart();
 
+// an array to hold all emeralds
 var allEmeralds = [];
 // instantiate emerald object
 var emerald = new Emerald(250, 250);
+// push the emerald(s) to the array
 allEmeralds.push(emerald);
 
+// an array to hold all garnets
 var allGarnets = [];
 var garnet1 = new Garnet(300, 270);
 var garnet2 = new Garnet(120, 400);
+// push all garnets to the array
 allGarnets.push(garnet1, garnet2);
 
+// an array to hold all sapphires
 var allSapphires = [];
 var sapphire1 = new Sapphire(30, 220);
 var sapphire2 = new Sapphire(120, 400);
 var sapphire3 = new Sapphire(350, 350);
+// push all sapphires to the array
 allSapphires.push(sapphire1, sapphire2, sapphire3);
 
+// game should always start at 'level1'
 var level = new Level("level1");
+
+// variable to check before a level is changed
 var newLevel = false;
+// variable to check if game is over
 var gameOver = false;
 
 

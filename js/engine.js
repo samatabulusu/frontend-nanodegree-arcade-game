@@ -259,8 +259,6 @@ var Engine = (function(global) {
 
             }
         }
-
-
         renderEntities();
     }
 
@@ -275,17 +273,19 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
-
+        // render the player
         player.render();
+        // render emeralds if game is at level1
         if (gemScore.getEmerald() == 0 && level.getLevel() == "level1") {
             emerald.render();
         }
+        // render garnets if game is at level2
         if (level.getLevel() == "level2") {
-            //console.log("got into the loop");
             allGarnets.forEach(function(garnet) {
                 garnet.render();
             });
         }
+        // render sapphires if game is at level3
         if (level.getLevel() == "level3") {
             allSapphires.forEach(function(sapphire) {
                 sapphire.render();
