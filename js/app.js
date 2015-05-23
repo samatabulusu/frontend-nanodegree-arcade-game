@@ -132,7 +132,8 @@ GemScore.prototype.reset = function() {
 
 /* parent class for all gem classes - Emerald, Garnet and Sapphire
  * implemented as a good showcase for inheritance and encapsulation
-*/ keeps track of size of the gem
+ * keeps track of size of the gem
+ */
 var Gem = function(x, y) {
     this.x = x;
     this.y = y;
@@ -144,7 +145,8 @@ Gem.prototype.HEIGHT = 80
 
 /* Emerald class
  * Parameter x: the x position on the canvas
-*/ Parameter y; the y position on the canvas
+ * Parameter y; the y position on the canvas
+ */
 var Emerald = function(x, y) {
     this.emerald = 'images/Gem Green.png';
     this.original = [x, y];
@@ -171,7 +173,8 @@ Emerald.prototype.disappear = function() {
 
 /* Garnet class
  * Parameter x: the x position on the canvas
-*/ Parameter y: the y position on the canvas
+ * Parameter y: the y position on the canvas
+ */
 var Garnet = function(x, y) {
     this.garnet = 'images/Gem Orange.png';
     this.original = [x, y];
@@ -199,7 +202,8 @@ Garnet.prototype.disappear = function() {
 
 /* Sapphire class
  * Parameter x: the x position on the canvas
-*/ Parameter y: the y position on the canvas
+ * Parameter y: the y position on the canvas
+*/
 var Sapphire = function(x, y) {
     this.sapphire = 'images/Gem Blue.png';
     this.original = [x, y];
@@ -228,7 +232,8 @@ Sapphire.prototype.disappear = function() {
 /* Enemies our player must avoid
  * Parameter x: the x position on the canvas
  * Parameter y: the y position on th canvas
-*/ Parameter speed: the rate at which the enemy moves
+ * Parameter speed: the rate at which the enemy moves
+ */
 var Enemy = function(x, y, speed) {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
@@ -267,7 +272,8 @@ Enemy.prototype.reset = function() {
 
 /* Player class
  * Parameter x: the x position of the player
-*/ Parameter y: the y position of the player
+ * Parameter y: the y position of the player
+ */
 var Player = function(x, y) {
     // associate the image with the player
     this.sprite = "images/char-princess-girl.png";
