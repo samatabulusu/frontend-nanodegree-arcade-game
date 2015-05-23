@@ -335,6 +335,7 @@ Player.prototype.update = function(keyCode) {
             // if so, move the player to the next level
             if (level.getLevel() == "level1" && gemScore.getEmerald() == 1) {
                 level.setLevel("level2");
+                allEnemies.push(enemy4, enemy5);
                 newLevel = true;
                 throw new GemException("all emeralds collected");
             }
@@ -342,6 +343,7 @@ Player.prototype.update = function(keyCode) {
             // if so, move the player to the next level
             if (level.getLevel() == "level2" && gemScore.getGarnet() == 2) {
                 level.setLevel("level3");
+                allEnemies.push(enemy6);
                 newLevel = true;
                 throw new GemException("all garnets collected");
             }
@@ -471,15 +473,20 @@ GemException.prototype = Object.create(Error.prototype);
 GemException.prototype.constructor = GemException;
 
 
+function resetEnemies() {
+    console.log("in reset enemies");
+}
+
 // an array to hold all enemies
 var allEnemies = [];
 // instantiate all enemies
 var enemy1 = new Enemy(-50, 120, 10);
-var enemy2 = new Enemy(-80, 170, 20);
+var enemy2 = new Enemy(-80, 220, 20);
 var enemy3 = new Enemy(-90, 280, 25);
-var enemy4 = new Enemy(-100, 310, 40);
+var enemy4 = new Enemy(-100, 320, 40);
 var enemy5 = new Enemy(-30, 240, 40);
-allEnemies.push(enemy1, enemy2, enemy3, enemy4, enemy5);
+var enemy6 = new Enemy(-30, 160, 80);
+allEnemies.push(enemy1, enemy2, enemy3);
 
 // instantiate the player
 var player = new Player(200, 420);
