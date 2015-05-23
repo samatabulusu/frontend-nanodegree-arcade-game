@@ -221,6 +221,8 @@ var Engine = (function(global) {
                             level.reset();
                             newLevel = false;
                             gameOver = false;
+                            allEnemies.splice(3, 3);
+
                         });
                     }
                     // in the first pass, hearts should reset
