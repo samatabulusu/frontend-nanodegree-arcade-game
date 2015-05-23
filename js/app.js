@@ -1,7 +1,8 @@
-// an app scope variable to keep track of sprite dimensions
-// this will be used for player, enemy, gems when checking
-// for collision illusion
 
+// Level class to track the game level for the player
+// three levels are allowed in this version
+// - level1, level2, level3
+// Parameter level: level the game is played at
 var Level = function(level) {
     this.level = level;
 }
@@ -26,7 +27,8 @@ Level.prototype.reset = function() {
     this.level = "level1";
 }
 
-// successful crossing score keeping class
+
+// Score class to keep track of score
 var Score = function() {
     this.score = 0;
 }
@@ -50,12 +52,12 @@ Score.prototype.reset = function() {
 }
 
 
-// heart score class
+// Heart class to keep track of lives
 var Heart = function() {
     this.hearts = Heart.prototype.ALLOWED_HEARTS;
 }
 
-Heart.prototype.ALLOWED_HEARTS = 1;
+Heart.prototype.ALLOWED_HEARTS = 5;
 
 Heart.prototype.remove = function() {
     this.hearts = this.hearts - 1;
@@ -65,11 +67,16 @@ Heart.prototype.getValue = function() {
     return this.hearts;
 }
 
+Heart.prototype.setZero = function() {
+    this.hearts = 0;
+}
+
 Heart.prototype.reset = function() {
     this.hearts = Heart.prototype.ALLOWED_HEARTS;
 }
 
-// gem score keeping class
+// Gem Score class to keep score of each of the
+// gems - emeralds, garnets, sapphires
 var GemScore = function() {
     this.emerald = 0;
     this.garnet = 0;
@@ -104,34 +111,39 @@ GemScore.prototype.reset = function() {
     this.emerald = 0;
     this.garnet = 0;
     this.sapphire = 0;
+    // reset all gems to their original locations
+    allEmeralds.forEach(function(emerald) {emerald.reset();});
+    allGarnets.forEach(function(garnet) {garnet.reset();});
+    allSapphires.forEach(function(sapphire) {sapphire.reset();});
 }
 
 
 // parent class for all gem classes - Emerald, Garnet and Sapphire
 // implemented as a good showcase for inheritance and encapsulation
+// keeps track of size of the gem
 var Gem = function(x, y) {
     this.x = x;
     this.y = y;
 }
-
+// width of the gem
 Gem.prototype.WIDTH = 80;
+// height of the gem
 Gem.prototype.HEIGHT = 80
 
-// each gem get's its own class for extensibility
-// of randomness in its location, frequency
-// and what ever else higher levels might be fun with
 // Emerald class
+// Parameter x: the x position on the canvas
+// Parameter y; the y position on the canvas
 var Emerald = function(x, y) {
     this.emerald = 'images/Gem Green.png';
+    this.original = [x, y];
     this.x = x;
     this.y = y;
 }
-
+// hooks itself to Gem class as its parent
 Emerald.prototype = Object.create(Gem.prototype)
 Emerald.prototype.constructor = Emerald;
 
 Emerald.prototype.render = function() {
-    // 40, 40 defines the size of the gem
     ctx.drawImage(Resources.get(this.emerald), this.x, this.y, this.WIDTH, this.HEIGHT);
 }
 
@@ -146,17 +158,20 @@ Emerald.prototype.disappear = function() {
 }
 
 // Garnet class
+// Parameter x: the x position on the canvas
+// Parameter y: the y position on the canvas
 var Garnet = function(x, y) {
     this.garnet = 'images/Gem Orange.png';
+    this.original = [x, y];
     this.x = x;
     this.y = y;
 }
 
+// hooks itself to Gem class as its parent
 Garnet.prototype = Object.create(Gem.prototype);
 Garnet.prototype.constructor = Garnet;
 
 Garnet.prototype.render = function() {
-    // 40, 40 defines the size of the gem
     ctx.drawImage(Resources.get(this.garnet), this.x, this.y, this.WIDTH, this.HEIGHT);
 }
 
@@ -171,17 +186,20 @@ Garnet.prototype.disappear = function() {
 }
 
 // Sapphire class
+// Parameter x: the x position on the canvas
+// Parameter y: the y position on the canvas
 var Sapphire = function(x, y) {
     this.sapphire = 'images/Gem Blue.png';
+    this.original = [x, y];
     this.x = x;
     this.y = y;
 }
 
+// hooks itself to Gem class as its parent
 Sapphire.prototype = Object.create(Gem.prototype);
 Sapphire.prototype.constructor = Sapphire;
 
 Sapphire.prototype.render = function() {
-    // 40, 40 defines the size of the gem
     ctx.drawImage(Resources.get(this.sapphire), this.x, this.y, this.WIDTH, this.HEIGHT);
 }
 
@@ -196,10 +214,10 @@ Sapphire.prototype.disappear = function() {
 }
 
 // Enemies our player must avoid
+// Parameter x: the x position on the canvas
+// Parameter y: the y position on th canvas
+// Parameter speed: the rate at which the enemy moves
 var Enemy = function(x, y, speed) {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
@@ -235,11 +253,9 @@ Enemy.prototype.reset = function() {
     this.y = this.original[1];
 }
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
-
-// Player class - Samata
+// Player class
+// Parameter x: the x position of the player
+// Parameter y: the y position of the player
 var Player = function(x, y) {
     // associate the image with the player
     this.sprite = "images/char-princess-girl.png";
@@ -255,66 +271,103 @@ Player.prototype.COLLISION_WIDTH = 20;
 // update method for Player class
 Player.prototype.update = function(keyCode) {
 
+    // if we have enemies, they are moving
+    // we check if our player has hit any bugs
+    // and throw a collision exception if they do
+    // to reset the player and the bugs
     if (allEnemies != null && allEnemies.length >0) {
         for (var i = 0; i < allEnemies.length; i++) {
-            //console.log("checkCollision = " + this.checkCollision(allEnemies[i]));
             if (this.checkCollision(allEnemies[i])) {
                 hearts.remove();
                 //console.log("Num hearts left = " + hearts.getValue());
                 //console.log("WE HAVE COLLISION! STOP THE GAME!!!");
                 throw new CollisionException("collided!");
             }
-
         }
     }
 
-    if (level1) {
+    // if we're at level1, emeralds are available for pickup
+    // check if the player collided with the emeralds
+    // and if it did, emerald disappears
+    if (level.getLevel() == "level1") {
         for (var i = 0; i < allEmeralds.length; i++) {
             if (this.checkGemCollision(allEmeralds[i])) {
                 gemScore.addEmerald();
                 allEmeralds[i].disappear();
-                throw new GemException("emerald collected")
             }
         }
     }
 
-    if (level2) {
+    // if we're at level2, garnets are available for pickup
+    // check if the player collided with the garnets
+    // and if it did, garnet disappears
+    if (level.getLevel() == "level2" && !newLevel) {
         for (var i = 0; i < allGarnets.length; i++) {
             if (this.checkGemCollision(allGarnets[i])) {
                 gemScore.addGarnet();
                 allGarnets[i].disappear();
-                throw new GemException("garnet collected")
             }
         }
     }
 
-    if (level3) {
+    // if we're at level3, sapphires are available for pickup
+    // check if the player collided with the sapphires
+    // and if it did, sapphires disappear
+    if (level.getLevel() == "level3" && !newLevel) {
         for (var i = 0; i < allSapphires.length; i++) {
             if (this.checkGemCollision(allSapphires[i])) {
                 gemScore.addSapphire();
                 allSapphires[i].disappear();
-                throw new GemException("sapphire collected")
             }
         }
     }
 
-
     // y location on canvas where the player has successfully
     // crossed the bug territory to water! yay!
+    // the player MUST get to the water ONCE, after gems are
+    // collected to move up to the next level
     if (this.y < 80) {
+        //up the score
         score.add();
+        // if we have a gem when we get to the water
         if (this.hasGem()) {
-            if ()
+            // did the player collect all the emeralds?
+            // if so, move the player to the next level
+            if (level.getLevel() == "level1" && gemScore.getEmerald() == 1) {
+                level.setLevel("level2");
+                newLevel = true;
+                throw new GemException("all emeralds collected");
+            }
+            // did the player collect all the garnets?
+            // if so, move the player to the next level
+            if (level.getLevel() == "level2" && gemScore.getGarnet() == 2) {
+                level.setLevel("level3");
+                newLevel = true;
+                throw new GemException("all garnets collected");
+            }
+            // did the player collect all the sapphires?
+            // if so, game is over!
+            if (level.getLevel() == "level3" && gemScore.getSapphire() == 3) {
+                gameOver = true;
+                newLevel = true;
+                throw new GemException("all sapphires collected");
+            }
+        } else {
+            // new level is NOT set if all gems are not collected
+            newLevel = false;
         }
+        // reset the player if the player has crossed to the water successfully
         player.reset();
-        // console.log("successfully got to water : " + score.getValue());
     }
 }
 
-Player.prototype.setGemCollected = function(value) {
-    this.hasGem = value;
+// setter for if the player has collected the gem
+Player.prototype.setGemCollected = function(collected) {
+    this.hasGem = collected;
 }
 
+// getter for if the player has gem
+// return true if player has gem, false otherwise
 Player.prototype.hasGem = function() {
     if (this.hasGem) {
         return true;
@@ -327,26 +380,28 @@ Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
+Player.prototype.STEP_WIDTH = 20;
+
 // handleInput method for Player class - Samata
 Player.prototype.handleInput = function(keyCode) {
     // move by 10 units
     // set left, right, up and down boundaries
     // so the player cannot move outside the box
     if (keyCode == 'left') {
-        if (!((this.x - 10) < -10)) {
-            this.x = this.x - 10;
+        if (!((this.x - this.STEP_WIDTH) < -10)) {
+            this.x = this.x - this.STEP_WIDTH;
         }
     } else if (keyCode == 'right') {
-        if (!((this.x + 10) > 420)) {
-            this.x = this.x + 10;
+        if (!((this.x + this.STEP_WIDTH) > 420)) {
+            this.x = this.x + this.STEP_WIDTH;
         }
     } else if (keyCode == 'up') {
-        if (!((this.y - 10) < 0)){
-            this.y = this.y - 10;
+        if (!((this.y - this.STEP_WIDTH) < 0)){
+            this.y = this.y - this.STEP_WIDTH;
         }
     } else if (keyCode == 'down') {
-        if (!((this.y + 10) > 430)) {
-            this.y = this.y + 10;
+        if (!((this.y + this.STEP_WIDTH) > 430)) {
+            this.y = this.y + this.STEP_WIDTH;
         }
     }
 }
@@ -424,7 +479,7 @@ var enemy2 = new Enemy(-80, 170, 20);
 var enemy3 = new Enemy(-90, 280, 25);
 var enemy4 = new Enemy(-100, 310, 40);
 var enemy5 = new Enemy(-30, 240, 40);
-allEnemies.push(enemy1, enemy2);
+allEnemies.push(enemy1, enemy2, enemy3, enemy4, enemy5);
 
 // instantiate the player
 var player = new Player(200, 420);
@@ -455,11 +510,7 @@ var sapphire3 = new Sapphire(350, 350);
 allSapphires.push(sapphire1, sapphire2, sapphire3);
 
 var level = new Level("level1");
-
-
-var level1 = true;
-var level2 = false;
-var level3 = false;
+var newLevel = false;
 var gameOver = false;
 
 
