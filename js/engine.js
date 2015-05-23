@@ -102,7 +102,11 @@ var Engine = (function(global) {
 
             } catch (e) {
                 //console.log("cannot update entities anymore: " + e.message);
-                reset();
+                if (e instanceof CollisionException) {
+                    reset();
+                } else if (e instanceof GemException) {
+                    console.log("GemException = " + e);
+                }
             }
         }
     }
@@ -156,55 +160,84 @@ var Engine = (function(global) {
                     ctx.lineWidth = -3;
                     ctx.textAlign = "left";
                     ctx.fillStyle = "red";
-                    ctx.fillText("Emeralds : " + gem.getEmerald() +  "     Garnets : " +
-                        gem.getGarnet() + "      Sapphires : " + gem.getSapphire() +
+                    ctx.fillText("Emeralds : " + gemScore.getEmerald() +  "     Garnets : " +
+                        gemScore.getGarnet() + "      Sapphires : " + gemScore.getSapphire() +
                         "      Score : " + score.getValue(), 10, 120);
 
-                    if (hearts.getValue() == 0 && gem.getEmerald() == 1 && gem.getGarnet() == 0) {
-                        ctx.fillText("Click on the canvas to play Level 2", 200, 200);
-                        document.addEventListener('click', function() {
+                    if (hearts.getValue() == 0) {
+                        if (gemScore.getEmerald() == 1) {
                             level1 = false;
                             level2 = true;
-                        });
-                        if (level2) {
-                            ctx.textAlign = "right";
-                            ctx.fillStyle = "white";
-                            ctx.fillText(" Game Level  2", 500, 70);
+                        }
+                        if (gemScore.getEmerald() == 1 && gemScore.getGarnet() == 2) {
+                            console.log("trying to set level3 to true");
+                            level2 = false;
+                            level3 = true;
                         }
                     }
-                    if (hearts.getValue() != 0 && gem.getEmerald() == 0) {
+
+                    // Level 1 of the game
+                    if (hearts.getValue() != 0 && level1) {
                             ctx.textAlign = "right";
                             ctx.fillStyle = "white";
                             ctx.fillText(" Game Level  1", 500, 70);
                     }
-                    if (hearts.getValue() == 0 && gem.getEmerald() == 1 && gem.getGarnet() == 2) {
-                        ctx.fillText("Click on the canvas to play Level 3", 250, 200);
-                        document.addEventListener('click', function() {
-                            level2 = false;
-                            level3 = true;
-                        });
-                        if (level3) {
+
+                    if (level2) {
+                        if (hearts.getValue() == 0) {
                             ctx.textAlign = "right";
                             ctx.fillStyle = "white";
-                            ctx.fillText(" Game Level  3", 500, 70);
+                            ctx.fillText("Click on the canvas to play Level 2", 370, 200);
+                            document.addEventListener('click', function() {
+                                hearts.reset();
+                            });
                         }
+                        ctx.textAlign = "right";
+                        ctx.fillStyle = "white";
+                        ctx.fillText(" Game Level  2", 500, 70);
                     }
 
+                    // Level 3 of the game
+                    if (level3) {
+                        if (hearts.getValue() == 0 && !gameOver) {
+                            ctx.textAlign = "right";
+                            ctx.fillStyle = "white";
+                            ctx.fillText("Click on the canvas to play Level 3", 370, 200);
+                            document.addEventListener('click', function() {
+                                hearts.reset();
+                                gameOver = false;
 
-                }
-                if (hearts.getValue() == 0) {
-                    ctx.font = "600 48px sans-serif";
-                    ctx.lineWidth = -3;
-                    ctx.textAlign = "center";
-                    ctx.fillStyle = "red";
-                    ctx.fillText("GAME OVER!", 250, 180);
-                    ctx.font = "100 12px sans-serif";
-                    ctx.fillText("Click on the canvas to play again", 250, 200);
+                            });
+                        } else {
+                            gameOver = true;
+                        }
+                        ctx.textAlign = "right";
+                        ctx.fillStyle = "white";
+                        ctx.fillText(" Game Level  3", 500, 70);
 
-                    document.addEventListener('click', function() {
-                        hearts.reset();
-                    });
+
+
+                        // in the first pass, hearts should reset
+                        // if code enters this its end of game
+                        if (hearts.getValue() == 0 && gameOver) {
+                            ctx.font = "600 48px sans-serif";
+                            ctx.lineWidth = -3;
+                            ctx.textAlign = "center";
+                            ctx.fillStyle = "red";
+                            ctx.fillText("GAME OVER!", 250, 180);
+                            ctx.font = "100 12px sans-serif";
+                            ctx.fillText("Click on the canvas to play again", 250, 220);
+
+                            document.addEventListener('click', function() {
+                                gemScore.reset();
+                                hearts.reset();
+                                score.reset();
+                            });
+                        }
+
+                    }
                 }
+
             }
         }
 
@@ -225,22 +258,16 @@ var Engine = (function(global) {
         });
 
         player.render();
-        if (gem.getEmerald() == 0) {
-            level1 = true;
+        if (gemScore.getEmerald() == 0 && level1) {
             emerald.render();
         }
-        if (gem.getEmerald() == 1 && gem.getGarnet() == 0) {
-            level1 = false;
-            level2 = true;
-            console.log("got into the loop");
+        if (level2) {
+            //console.log("got into the loop");
             allGarnets.forEach(function(garnet) {
                 garnet.render();
             });
         }
-        if (gem.getEmerald() == 1 && gem.getGarnet() == 2 && gem.getSapphire() == 0) {
-            level1 = false;
-            level2 = false;
-            level3 = true;
+        if (level3) {
             allSapphires.forEach(function(sapphire) {
                 sapphire.render();
             });
@@ -252,9 +279,8 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        allEnemies.forEach(function(enemy) {enemy.reset()}); // Samata
-        player.reset(); // Samata
-        // noop
+        allEnemies.forEach(function(enemy) {enemy.reset()});
+        player.reset();
     }
 
     /* Go ahead and load all of the images we know we're going to need to

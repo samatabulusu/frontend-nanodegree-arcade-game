@@ -2,7 +2,29 @@
 // this will be used for player, enemy, gems when checking
 // for collision illusion
 
-width = 0;
+var Level = function(level) {
+    this.level = level;
+}
+
+Level.prototype.getLevel = function() {
+    return this.level;
+}
+
+Level.prototype.setLevel = function(level) {
+    this.level = level;
+}
+
+Level.prototype.isLevel = function(level) {
+    if (this.level == level) {
+        return true;
+    }
+    return false;
+}
+
+// resets the game level to level1
+Level.prototype.reset = function() {
+    this.level = "level1";
+}
 
 // successful crossing score keeping class
 var Score = function() {
@@ -19,13 +41,21 @@ Score.prototype.getValue = function() {
     return this.score;
 }
 
+Score.prototype.reset = function() {
+    this.score = 0;
+    level1 = true;
+    level2 = false;
+    level3 = false;
+    gameOver = false;
+}
+
 
 // heart score class
 var Heart = function() {
     this.hearts = Heart.prototype.ALLOWED_HEARTS;
 }
 
-Heart.prototype.ALLOWED_HEARTS = 10;
+Heart.prototype.ALLOWED_HEARTS = 1;
 
 Heart.prototype.remove = function() {
     this.hearts = this.hearts - 1;
@@ -39,38 +69,53 @@ Heart.prototype.reset = function() {
     this.hearts = Heart.prototype.ALLOWED_HEARTS;
 }
 
-
 // gem score keeping class
-var Gem = function() {
+var GemScore = function() {
     this.emerald = 0;
     this.garnet = 0;
     this.sapphire = 0;
 }
 
-Gem.prototype.addEmerald = function() {
+GemScore.prototype.addEmerald = function() {
     this.emerald = this.emerald + 1;
 }
 
-Gem.prototype.getEmerald = function() {
+GemScore.prototype.getEmerald = function() {
     return this.emerald;
 }
 
-Gem.prototype.addGarnet = function() {
+GemScore.prototype.addGarnet = function() {
     this.garnet = this.garnet + 1;
 }
 
-Gem.prototype.getGarnet = function() {
+GemScore.prototype.getGarnet = function() {
     return this.garnet;
 }
 
-Gem.prototype.addSapphire = function() {
+GemScore.prototype.addSapphire = function() {
     this.sapphire = this.sapphire + 1;
 }
 
-Gem.prototype.getSapphire = function() {
+GemScore.prototype.getSapphire = function() {
     return this.sapphire;
 }
 
+GemScore.prototype.reset = function() {
+    this.emerald = 0;
+    this.garnet = 0;
+    this.sapphire = 0;
+}
+
+
+// parent class for all gem classes - Emerald, Garnet and Sapphire
+// implemented as a good showcase for inheritance and encapsulation
+var Gem = function(x, y) {
+    this.x = x;
+    this.y = y;
+}
+
+Gem.prototype.WIDTH = 80;
+Gem.prototype.HEIGHT = 80
 
 // each gem get's its own class for extensibility
 // of randomness in its location, frequency
@@ -82,13 +127,12 @@ var Emerald = function(x, y) {
     this.y = y;
 }
 
-Emerald.prototype.visible = true;
+Emerald.prototype = Object.create(Gem.prototype)
+Emerald.prototype.constructor = Emerald;
 
 Emerald.prototype.render = function() {
     // 40, 40 defines the size of the gem
-    if (this.visible) {
-        ctx.drawImage(Resources.get(this.emerald), this.x, this.y, 40, 40);
-    }
+    ctx.drawImage(Resources.get(this.emerald), this.x, this.y, this.WIDTH, this.HEIGHT);
 }
 
 Emerald.prototype.reset = function() {
@@ -97,7 +141,8 @@ Emerald.prototype.reset = function() {
 }
 
 Emerald.prototype.disappear = function() {
-    Emerald.prototype.visible = false;
+    this.x = -1000;
+    this.y = -1000;
 }
 
 // Garnet class
@@ -107,14 +152,22 @@ var Garnet = function(x, y) {
     this.y = y;
 }
 
+Garnet.prototype = Object.create(Gem.prototype);
+Garnet.prototype.constructor = Garnet;
+
 Garnet.prototype.render = function() {
     // 40, 40 defines the size of the gem
-    ctx.drawImage(Resources.get(this.garnet), this.x, this.y, 40, 40);
+    ctx.drawImage(Resources.get(this.garnet), this.x, this.y, this.WIDTH, this.HEIGHT);
 }
 
 Garnet.prototype.reset = function() {
     this.x = this.original[0];
     this.y = this.original[1];
+}
+
+Garnet.prototype.disappear = function() {
+    this.x = -1000;
+    this.y = -1000;
 }
 
 // Sapphire class
@@ -124,14 +177,22 @@ var Sapphire = function(x, y) {
     this.y = y;
 }
 
+Sapphire.prototype = Object.create(Gem.prototype);
+Sapphire.prototype.constructor = Sapphire;
+
 Sapphire.prototype.render = function() {
     // 40, 40 defines the size of the gem
-    ctx.drawImage(Resources.get(this.sapphire), this.x, this.y, 40, 40);
+    ctx.drawImage(Resources.get(this.sapphire), this.x, this.y, this.WIDTH, this.HEIGHT);
 }
 
 Sapphire.prototype.reset = function() {
     this.x = this.original[0];
     this.y = this.original[1];
+}
+
+Sapphire.prototype.disappear = function() {
+    this.x = -1000;
+    this.y = -1000;
 }
 
 // Enemies our player must avoid
@@ -186,6 +247,10 @@ var Player = function(x, y) {
     this.x = x;
     this.y = y;
 }
+// best collision width for gem
+Player.prototype.GEM_COLLISION_WIDTH = 20;
+// best collision width for player and bug
+Player.prototype.COLLISION_WIDTH = 20;
 
 // update method for Player class
 Player.prototype.update = function(keyCode) {
@@ -204,19 +269,57 @@ Player.prototype.update = function(keyCode) {
     }
 
     if (level1) {
-        console.log("playing level1");
-        if (this.checkCollision(emerald)) {
-            gem.addEmerald();
-            emerald.disappear();
+        for (var i = 0; i < allEmeralds.length; i++) {
+            if (this.checkGemCollision(allEmeralds[i])) {
+                gemScore.addEmerald();
+                allEmeralds[i].disappear();
+                throw new GemException("emerald collected")
+            }
         }
     }
+
+    if (level2) {
+        for (var i = 0; i < allGarnets.length; i++) {
+            if (this.checkGemCollision(allGarnets[i])) {
+                gemScore.addGarnet();
+                allGarnets[i].disappear();
+                throw new GemException("garnet collected")
+            }
+        }
+    }
+
+    if (level3) {
+        for (var i = 0; i < allSapphires.length; i++) {
+            if (this.checkGemCollision(allSapphires[i])) {
+                gemScore.addSapphire();
+                allSapphires[i].disappear();
+                throw new GemException("sapphire collected")
+            }
+        }
+    }
+
+
     // y location on canvas where the player has successfully
     // crossed the bug territory to water! yay!
     if (this.y < 80) {
         score.add();
+        if (this.hasGem()) {
+            if ()
+        }
         player.reset();
         // console.log("successfully got to water : " + score.getValue());
     }
+}
+
+Player.prototype.setGemCollected = function(value) {
+    this.hasGem = value;
+}
+
+Player.prototype.hasGem = function() {
+    if (this.hasGem) {
+        return true;
+    }
+    return false;
 }
 
 // render method for Player class - Samata
@@ -254,27 +357,28 @@ Player.prototype.reset = function() {
     this.y = this.original[1];
 }
 
-function CollisionException(message) {
-    this.message = message;
-    this.name = "CollisionException";
-}
-
+// check if the player collided with any of the enemy bugs
 Player.prototype.checkCollision = function(e) {
 //    var val = (this.left > e.right) || (this.right < e.left)
 //          || (this.bottom < e.top) || (e.bottom < this.top);
-    if (e instanceof Enemy) {
-        width = 25
-        return !(getLeft(this.x, width) > getRight(e.x, width) || getRight(this.x, width) < getLeft(e.x, width)
-              || getBottom(this.y, width) < getTop(e.y, width) || getBottom(e.y, width) < getTop(this.y, width));
-    } else {
-        width = 10;
-        return !(getLeft(this.x, width) > getRight(e.x, width) || getRight(this.x, width) < getLeft(e.x, width)
-              || getBottom(this.y, width) < getTop(e.y, width) || getBottom(e.y, width) < getTop(this.y, width));
-    }
-    console.log("width = " + width);
-
+    var val = !(getLeft(this.x, this.COLLISION_WIDTH) > getRight(e.x, this.COLLISION_WIDTH)
+                || getRight(this.x, this.COLLISION_WIDTH) < getLeft(e.x, this.COLLISION_WIDTH)
+                || getBottom(this.y, this.COLLISION_WIDTH) < getTop(e.y, this.COLLISION_WIDTH)
+                || getBottom(e.y, this.COLLISION_WIDTH) < getTop(this.y, this.COLLISION_WIDTH));
+    return val;
 }
 
+// check if the player picked up any of the gems
+Player.prototype.checkGemCollision = function(gem) {
+    var val = !(getLeft(this.x, this.COLLISION_WIDTH) > getRight(gem.x , this.GEM_COLLISION_WIDTH)
+                || getRight(this.x, this.COLLISION_WIDTH) < getLeft(gem.x, this.GEM_COLLISION_WIDTH)
+                || getBottom(this.y, this.COLLISION_WIDTH) < getTop(gem.y, this.GEM_COLLISION_WIDTH)
+                || getBottom(gem.y, this.GEM_COLLISION_WIDTH) < getTop(this.y, this.COLLISION_WIDTH));
+    if (val) {
+        this.setGemCollected = true;
+    }
+    return val;
+}
 
 function getLeft(xVal, width) {
     return xVal - width;
@@ -292,6 +396,26 @@ function getBottom(yVal, width) {
     return yVal + width;
 }
 
+// the CollisionException class
+function CollisionException(message) {
+    this.message = message;
+    this.name = "CollisionException";
+}
+
+CollisionException.prototype = Object.create(Error.prototype);
+CollisionException.prototype.constructor = CollisionException;
+
+
+// the GemException class
+function GemException(message) {
+    this.name = "GemException";
+    this.message = message;
+}
+
+GemException.prototype = Object.create(Error.prototype);
+GemException.prototype.constructor = GemException;
+
+
 // an array to hold all enemies
 var allEnemies = [];
 // instantiate all enemies
@@ -300,7 +424,7 @@ var enemy2 = new Enemy(-80, 170, 20);
 var enemy3 = new Enemy(-90, 280, 25);
 var enemy4 = new Enemy(-100, 310, 40);
 var enemy5 = new Enemy(-30, 240, 40);
-allEnemies.push(enemy1, enemy2, enemy3);
+allEnemies.push(enemy1, enemy2);
 
 // instantiate the player
 var player = new Player(200, 420);
@@ -309,13 +433,15 @@ var player = new Player(200, 420);
 var score = new Score();
 
 // instantiate gem counter
-var gem = new Gem();
+var gemScore = new GemScore();
 
 // instantiate heart counter
 var hearts = new Heart();
 
+var allEmeralds = [];
 // instantiate emerald object
-var emerald = new Emerald(200, 250);
+var emerald = new Emerald(250, 250);
+allEmeralds.push(emerald);
 
 var allGarnets = [];
 var garnet1 = new Garnet(300, 270);
@@ -328,9 +454,13 @@ var sapphire2 = new Sapphire(120, 400);
 var sapphire3 = new Sapphire(350, 350);
 allSapphires.push(sapphire1, sapphire2, sapphire3);
 
-var level1 = false;
+var level = new Level("level1");
+
+
+var level1 = true;
 var level2 = false;
 var level3 = false;
+var gameOver = false;
 
 
 // This listens for key presses and sends the keys to your
