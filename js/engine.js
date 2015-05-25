@@ -28,7 +28,11 @@ var Engine = (function(global) {
 
     canvas.width = 505;
     canvas.height = 606;
-    doc.body.appendChild(canvas);
+    //doc.body.appendChild(canvas);
+    // append the game to 9 cols on the right
+    // the first 3 cols will be the rules of the game
+    var gc = doc.getElementById('gamecanvas');
+    gc.appendChild(canvas);
     image.src = "images/Heart.png";
 
     /* This function serves as the kickoff point for the game loop itself
@@ -129,6 +133,7 @@ var Engine = (function(global) {
                 'images/stone-block.png',   // Row 3 of 3 of stone
                 'images/grass-block.png',   // Row 1 of 2 of grass
                 'images/grass-block.png'    // Row 2 of 2 of grass
+
             ],
             numRows = 6,
             numCols = 5,
@@ -149,6 +154,7 @@ var Engine = (function(global) {
                  */
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
 
+                // draw hearts
                 var j = 0;
                  for (i = 0; i < hearts.getValue(); i++) {
                     j = j + 28;
@@ -156,63 +162,58 @@ var Engine = (function(global) {
                 }
 
                 if (score != null) {
+
+                    // display gem scores
                     ctx.font = "100 18px sans-serif";
                     ctx.lineWidth = -3;
                     ctx.textAlign = "left";
-                    ctx.fillStyle = "red";
+                    ctx.fillStyle = Level.prototype.GAME_LEVEL_FONT_COLOR;
                     ctx.fillText("Emeralds : " + gemScore.getEmerald() +  "     Garnets : " +
                         gemScore.getGarnet() + "      Sapphires : " + gemScore.getSapphire() +
                         "      Score : " + score.getValue(), 10, 120);
 
                     // display level 1 banner
                     if (level.getLevel() == "level1") {
-                            ctx.textAlign = "right";
-                            ctx.fillStyle = "white";
-                            ctx.fillText(" Game Level  1", 500, 70);
+                        ctx.textAlign = "right";
+                        ctx.fillStyle = Level.prototype.GAME_LEVEL_FONT_COLOR;
+                        ctx.fillText(" Game Level  1", 500, 70);
                     }
 
                     // display level 2 banner
                     if (level.getLevel() == "level2") {
                         if (newLevel) {
-                            ctx.textAlign = "right";
-                            ctx.fillStyle = "white";
-                            ctx.fillText("Click on the canvas to play Level 2", 370, 200);
-                            //document.addEventListener('click', function() {
-                                reset();
-                                hearts.reset();
-                                newLevel = false;
-                            //});
+                            reset();
+                            hearts.reset();
+                            newLevel = false;
                         }
                         ctx.textAlign = "right";
-                        ctx.fillStyle = "white";
+                        ctx.fillStyle = Level.prototype.GAME_LEVEL_FONT_COLOR;
                         ctx.fillText(" Game Level  2", 500, 70);
                     }
 
                     // display level 3 banner
                     if (level.getLevel() == "level3") {
                         if (newLevel) {
-                            ctx.textAlign = "right";
-                            ctx.fillStyle = "white";
-                            ctx.fillText("Click on the canvas to play Level 3", 370, 200);
                             reset();
                             hearts.reset();
                             newLevel = false;
                         }
                         ctx.textAlign = "right";
-                        ctx.fillStyle = "white";
+                        ctx.fillStyle = Level.prototype.GAME_LEVEL_FONT_COLOR;
                         ctx.fillText(" Game Level  3", 500, 70);
                     }
 
+                    // all gems have not been collected but the player lost all hearts
                     if (!gameOver && hearts.getValue() == 0) {
-                        ctx.font = "600 48px sans-serif";
+                        ctx.font = "700 72px sans-serif";
                         ctx.lineWidth = -3;
                         ctx.textAlign = "center";
-                        ctx.fillStyle = "red";
+                        ctx.fillStyle = Level.prototype.GAME_OVER_FONT_COLOR;
                         ctx.fillText("GAME OVER!", 250, 200);
-                        ctx.font = "100 12px sans-serif";
+                        ctx.font = "100 16px " + "sans-serif";
                         ctx.textAlign = "center";
-                        ctx.fillStyle = "white";
-                        ctx.fillText("Click on the canvas to play again", 250, 240);
+                        ctx.fillStyle = Level.prototype.PLAY_AGAIN_FONT_COLOR;
+                        ctx.fillText("Click on the canvas to play again", 250, 280);
                         document.addEventListener('click', function() {
                             reset();
                             gemScore.reset();
@@ -221,28 +222,32 @@ var Engine = (function(global) {
                             level.reset();
                             newLevel = false;
                             gameOver = false;
-                            allEnemies.splice(3, 3);
+                            // splice at number of enemies at level1
+                            allEnemies.splice(5, allEnemies.length);
 
                         });
                     }
-                    // in the first pass, hearts should reset
-                    // if code enters this its end of game
+
+
+                    // the player got all gems and got to the water
+                    // without losing all hearts..awesome!
                     if (gameOver) {
-                        ctx.font = "600 48px sans-serif";
+                        ctx.font = "600 72px sans-serif";
                         ctx.lineWidth = -3;
                         ctx.textAlign = "center";
-                        ctx.fillStyle = "red";
+                        ctx.fillStyle = Level.prototype.YOU_WIN_FONT_COLOR;
                         ctx.fillText("YOU WIN!", 250, 200);
-                        ctx.font = "600 24px sans-serif";
-                        ctx.fillText("Awesome Job!!", 250, 220);
+                        ctx.font = "600 24px " + "sans-serif";
+                        ctx.fillText("Awesome Job!!", 250, 240);
                         ctx.textAlign = "center";
-                        ctx.fillStyle = "white";
-                        ctx.font = "100 12px sans-serif";
-                        ctx.fillText("Click on the canvas to play again", 250, 240);
+                        ctx.fillStyle = Level.prototype.PLAY_AGAIN_FONT_COLOR;
+                        ctx.font = "100 16px sans-serif";
+                        ctx.fillText("Click on the canvas to play again", 250, 280);
                         if (hearts.getValue() != 0) {
                             hearts.setZero();
                         }
-
+                        // listen for 'click' to start the game over
+                        // reset all game parameters
                         document.addEventListener('click', function() {
                             reset();
                             gemScore.reset();
@@ -251,7 +256,8 @@ var Engine = (function(global) {
                             level.reset();
                             newLevel = false;
                             gameOver = false;
-                            allEnemies.splice(3, 3);
+                            // splice at number of enemies at level1
+                            allEnemies.splice(5, allEnemies.length);
                         });
                     }
 
@@ -276,8 +282,10 @@ var Engine = (function(global) {
         // render the player
         player.render();
         // render emeralds if game is at level1
-        if (gemScore.getEmerald() == 0 && level.getLevel() == "level1") {
-            emerald.render();
+        if (level.getLevel() == "level1") {
+            allEmeralds.forEach(function(emerald) {
+                emerald.render();
+            });
         }
         // render garnets if game is at level2
         if (level.getLevel() == "level2") {
@@ -314,9 +322,9 @@ var Engine = (function(global) {
         'images/char-boy.png',
         'images/char-princess-girl.png',
         'images/Heart.png',
-        'images/Gem Green.png',
-        'images/Gem Orange.png',
-        'images/Gem Blue.png'
+        'images/Gem-Green.png',
+        'images/Gem-Orange.png',
+        'images/Gem-Blue.png'
     ]);
     Resources.onReady(init);
 

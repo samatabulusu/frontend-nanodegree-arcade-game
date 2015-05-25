@@ -1,3 +1,39 @@
+/* align the rules and canvas to the center */
 body {
     text-align: center;
+}
+
+/* font size for rules*/
+.game-rules {
+	font-size: 16px;
+}
+
+/* header alignment and color for rules*/
+.header{
+	text-align: center;
+	color: #000000;
+}
+
+/* make the list appear horizontal*/
+li {
+	text-align: left;
+	font-weight: bold;
+	display: inline;
+	list-style-type: none;
+	padding-right: 10px;
+}
+
+/* color for first rule*/
+.blue-text {
+	color: #0099FF;
+}
+
+/* color for second rule*/
+.stone-text {
+	color: #6C8989;
+}
+
+/* color for third rule*/
+.green-text{
+	color: #009933;
 }

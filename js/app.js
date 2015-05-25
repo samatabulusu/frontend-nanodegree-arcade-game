@@ -18,6 +18,11 @@
 var Level = function(level) {
     this.level = level;
 }
+// font colors used for display on canvas
+Level.prototype.GAME_LEVEL_FONT_COLOR = "#000000";
+Level.prototype.PLAY_AGAIN_FONT_COLOR = "#654422";
+Level.prototype.GAME_OVER_FONT_COLOR = "#E62E00";
+Level.prototype.YOU_WIN_FONT_COLOR = "#E62E00";
 
 Level.prototype.getLevel = function() {
     return this.level;
@@ -148,7 +153,7 @@ Gem.prototype.HEIGHT = 80
  * Parameter y; the y position on the canvas
  */
 var Emerald = function(x, y) {
-    this.emerald = 'images/Gem Green.png';
+    this.emerald = 'images/Gem-Green.png';
     this.original = [x, y];
     this.x = x;
     this.y = y;
@@ -176,7 +181,7 @@ Emerald.prototype.disappear = function() {
  * Parameter y: the y position on the canvas
  */
 var Garnet = function(x, y) {
-    this.garnet = 'images/Gem Orange.png';
+    this.garnet = 'images/Gem-Orange.png';
     this.original = [x, y];
     this.x = x;
     this.y = y;
@@ -205,7 +210,7 @@ Garnet.prototype.disappear = function() {
  * Parameter y: the y position on the canvas
 */
 var Sapphire = function(x, y) {
-    this.sapphire = 'images/Gem Blue.png';
+    this.sapphire = 'images/Gem-Blue.png';
     this.original = [x, y];
     this.x = x;
     this.y = y;
@@ -293,12 +298,10 @@ Player.prototype.update = function(keyCode) {
     // we check if our player has hit any bugs
     // and throw a collision exception if they do
     // to reset the player and the bugs
-    if (allEnemies != null && allEnemies.length >0) {
+    if (allEnemies != null && allEnemies.length > 0) {
         for (var i = 0; i < allEnemies.length; i++) {
             if (this.checkCollision(allEnemies[i])) {
                 hearts.remove();
-                //console.log("Num hearts left = " + hearts.getValue());
-                //console.log("WE HAVE COLLISION! STOP THE GAME!!!");
                 throw new CollisionException("collided!");
             }
         }
@@ -351,23 +354,25 @@ Player.prototype.update = function(keyCode) {
         if (this.hasGem()) {
             // did the player collect all the emeralds?
             // if so, move the player to the next level
-            if (level.getLevel() == "level1" && gemScore.getEmerald() == 1) {
+            if (level.getLevel() == "level1" && gemScore.getEmerald() == allEmeralds.length) {
                 level.setLevel("level2");
-                allEnemies.push(enemy4, enemy5);
+                // add extra enemies on level2
+                allEnemies.push(enemy6, enemy7);
                 newLevel = true;
                 throw new GemException("all emeralds collected");
             }
             // did the player collect all the garnets?
             // if so, move the player to the next level
-            if (level.getLevel() == "level2" && gemScore.getGarnet() == 2) {
+            if (level.getLevel() == "level2" && gemScore.getGarnet() == allGarnets.length) {
                 level.setLevel("level3");
-                allEnemies.push(enemy6);
+                // add extra enemies on level3
+                allEnemies.push(enemy8);
                 newLevel = true;
                 throw new GemException("all garnets collected");
             }
             // did the player collect all the sapphires?
             // if so, game is over!
-            if (level.getLevel() == "level3" && gemScore.getSapphire() == 3) {
+            if (level.getLevel() == "level3" && gemScore.getSapphire() == allSapphires.length) {
                 gameOver = true;
                 newLevel = true;
                 throw new GemException("all sapphires collected");
@@ -443,6 +448,9 @@ Player.prototype.checkCollision = function(e) {
 }
 
 // check if the player picked up any of the gems
+// TODO - refine gem collision further - in version 2
+//      - make it depend on width and height i.e., size of gem which could vary
+//      - make gems of varying sizes depending on levels
 Player.prototype.checkGemCollision = function(gem) {
     var val = !(getLeft(this.x, this.COLLISION_WIDTH) > getRight(gem.x , this.GEM_COLLISION_WIDTH)
                 || getRight(this.x, this.COLLISION_WIDTH) < getLeft(gem.x, this.GEM_COLLISION_WIDTH)
@@ -505,7 +513,9 @@ var enemy3 = new Enemy(-90, 280, 25);
 var enemy4 = new Enemy(-100, 320, 40);
 var enemy5 = new Enemy(-30, 240, 40);
 var enemy6 = new Enemy(-30, 160, 80);
-allEnemies.push(enemy1, enemy2, enemy3);
+var enemy7 = new Enemy(-70, 260, 100);
+var enemy8 = new Enemy(-100, 100, 120);
+allEnemies.push(enemy1, enemy2, enemy3, enemy4, enemy5);
 
 // instantiate the player
 var player = new Player(200, 420);
@@ -522,24 +532,31 @@ var hearts = new Heart();
 // an array to hold all emeralds
 var allEmeralds = [];
 // instantiate emerald object
-var emerald = new Emerald(250, 250);
+var emerald1 = new Emerald(190, 250);
+var emerald2 = new Emerald(10, 280);
+var emerald3 = new Emerald(350, 190);
 // push the emerald(s) to the array
-allEmeralds.push(emerald);
+allEmeralds.push(emerald1, emerald2, emerald3);
 
 // an array to hold all garnets
 var allGarnets = [];
 var garnet1 = new Garnet(300, 270);
-var garnet2 = new Garnet(120, 400);
+var garnet2 = new Garnet(120, 200);
+var garnet3 = new Garnet(220, 300);
+var garnet4 = new Garnet(10, 180);
 // push all garnets to the array
-allGarnets.push(garnet1, garnet2);
+allGarnets.push(garnet1, garnet2, garnet3, garnet4);
 
 // an array to hold all sapphires
 var allSapphires = [];
-var sapphire1 = new Sapphire(30, 220);
-var sapphire2 = new Sapphire(120, 400);
-var sapphire3 = new Sapphire(350, 350);
+var sapphire1 = new Sapphire(300, 340);
+var sapphire2 = new Sapphire(220, 300);
+var sapphire3 = new Sapphire(420, 350);
+var sapphire4 = new Sapphire(20, 170);
+var sapphire5 = new Sapphire(150, 200);
 // push all sapphires to the array
-allSapphires.push(sapphire1, sapphire2, sapphire3);
+//allSapphires.push(sapphire1, sapphire2, sapphire3, sapphire4, sapphire5);
+allSapphires.push(sapphire1, sapphire2, sapphire3, sapphire4, sapphire5);
 
 // game should always start at 'level1'
 var level = new Level("level1");
