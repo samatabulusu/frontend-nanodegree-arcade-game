@@ -8,7 +8,12 @@ General Usage Notes
 repository to your computer
 https://github.com/samatabulusu/frontend-nanodegree-arcade-game
 2. Load index.html to your chrome browser
-3. Play the game
+3. Use left, right, up and down arrow keys to move the player
+4. Collect all the gems to move to the next level
+5. Player must get to the water after collecting gems to move up
+to the next level
+6. Watch out for bugs. You lose lives if you collide with a bug
+7. Bugs increase per level as do gems you get to collect :)
 
 Online Availability
 -------------------
