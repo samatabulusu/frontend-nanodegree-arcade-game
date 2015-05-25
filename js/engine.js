@@ -97,7 +97,7 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        if (hearts.getValue() != 0) {
+        if (hearts.getValue() !== 0) {
             try {
                 allEnemies.forEach(function(enemy) {
                     enemy.update(dt);
@@ -161,7 +161,7 @@ var Engine = (function(global) {
                     ctx.drawImage(image, j, 50, 30,  40);
                 }
 
-                if (score != null) {
+                if (score !== null) {
 
                     // display gem scores
                     ctx.font = "100 18px sans-serif";
@@ -204,7 +204,7 @@ var Engine = (function(global) {
                     }
 
                     // all gems have not been collected but the player lost all hearts
-                    if (!gameOver && hearts.getValue() == 0) {
+                    if (!gameOver && hearts.getValue() === 0) {
                         ctx.font = "700 72px sans-serif";
                         ctx.lineWidth = -3;
                         ctx.textAlign = "center";
@@ -243,7 +243,7 @@ var Engine = (function(global) {
                         ctx.fillStyle = Level.prototype.PLAY_AGAIN_FONT_COLOR;
                         ctx.font = "100 16px sans-serif";
                         ctx.fillText("Click on the canvas to play again", 250, 280);
-                        if (hearts.getValue() != 0) {
+                        if (hearts.getValue() !== 0) {
                             hearts.setZero();
                         }
                         // listen for 'click' to start the game over

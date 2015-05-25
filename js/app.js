@@ -301,7 +301,7 @@ Player.prototype.update = function() {
     // we check if our player has hit any bugs
     // and throw a collision exception if they do
     // to reset the player and the bugs
-    if (allEnemies != null && allEnemies.length > 0) {
+    if (allEnemies !== null && allEnemies.length > 0) {
         for (var i = 0; i < allEnemies.length; i++) {
             if (this.checkCollision(allEnemies[i])) {
                 hearts.remove();
