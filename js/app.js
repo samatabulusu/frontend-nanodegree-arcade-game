@@ -16,7 +16,7 @@
  * Parameter level: level the game is played at
 */
 var Level = function(level) {
-    level = level;
+    this.level = level;
 };
 // font colors used for display on canvas
 Level.prototype.GAME_LEVEL_FONT_COLOR = "#000";
@@ -301,7 +301,7 @@ Player.prototype.update = function() {
     // we check if our player has hit any bugs
     // and throw a collision exception if they do
     // to reset the player and the bugs
-    if (allEnemies !== null && allEnemies.length > 0) {
+    if (allEnemies != null && allEnemies.length > 0) {
         for (var i = 0; i < allEnemies.length; i++) {
             if (this.checkCollision(allEnemies[i])) {
                 hearts.remove();
@@ -564,7 +564,7 @@ var sapphire5 = new Sapphire(150, 200);
 //allSapphires.push(sapphire1, sapphire2, sapphire3, sapphire4, sapphire5);
 allSapphires.push(sapphire1, sapphire2, sapphire3, sapphire4, sapphire5);
 
-var level1, level2, level3;
+// var level1, level2, level3;
 // game should always start at 'level1'
 var level = new Level("level1");
 
