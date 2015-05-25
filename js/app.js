@@ -292,7 +292,7 @@ Player.prototype.GEM_COLLISION_WIDTH = 20;
 Player.prototype.COLLISION_WIDTH = 20;
 
 // update method for Player class
-Player.prototype.update = function(keyCode) {
+Player.prototype.update = function() {
 
     // if we have enemies, they are moving
     // we check if our player has hit any bugs
