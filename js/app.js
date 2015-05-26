@@ -149,6 +149,16 @@ Gem.prototype.WIDTH = 80;
 // height of the gem
 Gem.prototype.HEIGHT = 80;
 
+Gem.prototype.reset = function() {
+    this.x = this.original[0];
+    this.y = this.original[1];
+};
+
+Gem.prototype.disappear = function() {
+    this.x = -1000;
+    this.y = -1000;
+};
+
 /* Emerald class
  * Parameter x: the x position on the canvas
  * Parameter y; the y position on the canvas
@@ -166,16 +176,6 @@ Emerald.prototype.constructor = Emerald;
 
 Emerald.prototype.render = function() {
     ctx.drawImage(Resources.get(this.emerald), this.x, this.y, this.WIDTH, this.HEIGHT);
-};
-
-Emerald.prototype.reset = function() {
-    this.x = this.original[0];
-    this.y = this.original[1];
-};
-
-Emerald.prototype.disappear = function() {
-    this.x = -1000;
-    this.y = -1000;
 };
 
 /* Garnet class
@@ -197,15 +197,6 @@ Garnet.prototype.render = function() {
     ctx.drawImage(Resources.get(this.garnet), this.x, this.y, this.WIDTH, this.HEIGHT);
 };
 
-Garnet.prototype.reset = function() {
-    this.x = this.original[0];
-    this.y = this.original[1];
-};
-
-Garnet.prototype.disappear = function() {
-    this.x = -1000;
-    this.y = -1000;
-};
 
 /* Sapphire class
  * Parameter x: the x position on the canvas
@@ -224,16 +215,6 @@ Sapphire.prototype.constructor = Sapphire;
 
 Sapphire.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sapphire), this.x, this.y, this.WIDTH, this.HEIGHT);
-};
-
-Sapphire.prototype.reset = function() {
-    this.x = this.original[0];
-    this.y = this.original[1];
-};
-
-Sapphire.prototype.disappear = function() {
-    this.x = -1000;
-    this.y = -1000;
 };
 
 /* Enemies our player must avoid
@@ -524,7 +505,11 @@ var enemy8 = new Enemy(-100, 100, 120);
 allEnemies.push(enemy1, enemy2, enemy3, enemy4, enemy5);
 
 // instantiate the player
-var player = new Player(200, 420);
+// location of player is critical to where the player 'seems'
+// to be able to move - edges of the canvas since we have
+// to move in a box of 83x101 per game specs
+// Do NOT change these values!
+var player = new Player(160, 415);
 
 // instantiate score counter
 var score = new Score();
